@@ -22,30 +22,75 @@ export default function GroceryScreen() {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<GroceryProduct[]>([]);
   const [savings, setSavings] = useState(0);
+  const [ondcSource, setOndcSource] = useState(false);
+
+  const BACKEND = 'http://10.0.2.2:3000'; // Android emulator localhost; change to ngrok URL for real device
 
   const search = async (q: string) => {
     const trimmed = q.trim().toLowerCase();
     if (!trimmed) { showToast('Enter a product name'); return; }
     addRecent('grocery', trimmed);
-    setLoading(true);
-    setResults([]);
-    await new Promise(r => setTimeout(r, 1200));
-    const key = Object.keys(GDB).find(k => trimmed.includes(k) || k.includes(trimmed));
-    const products: GroceryProduct[] = key ? GDB[key] : [{
+    setLoading(true); setResults([]); setOndcSource(false);
+
+    // ── Try ONDC backend ─────────────────────────────────────
+    let ondcTxId: string | null = null;
+    try {
+      const resp = await Promise.race([
+        fetch(`${BACKEND}/api/search`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: trimmed, domain: 'grocery' }),
+        }),
+        new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 4000)),
+      ]);
+      const json = await (resp as Response).json();
+      ondcTxId = json.transactionId || null;
+    } catch { /* backend unreachable — use local DB */ }
+
+    // ── Local DB fallback ────────────────────────────────────
+    const { searchGDB } = require('../data/groceryDB');
+    const local: GroceryProduct[] = searchGDB(trimmed);
+    const fallback: GroceryProduct = {
       name: q, emoji: 'default',
       platforms: [
         { label: 'Zepto',     cls: 'zepto',     price: 49, size: '1pc', perUnit: '-', deepLink: 'zepto://search?q='     + encodeURIComponent(q), playStore: 'https://play.google.com/store/apps/details?id=com.zepto.app' },
         { label: 'Blinkit',   cls: 'blinkit',   price: 52, size: '1pc', perUnit: '-', deepLink: 'blinkit://search?q='   + encodeURIComponent(q), playStore: 'https://play.google.com/store/apps/details?id=com.blinkit.android' },
         { label: 'BigBasket', cls: 'bigbasket', price: 46, size: '1pc', perUnit: '-', deepLink: 'bigbasket://search?q=' + encodeURIComponent(q), playStore: 'https://play.google.com/store/apps/details?id=com.bigbasket' },
       ],
-    }];
-    const allPrices = products.flatMap(p => p.platforms.map(pl => pl.price));
-    const save = Math.max(...allPrices) - Math.min(...allPrices);
-    setSavings(save);
-    addSavings(save);
-    setResults(products);
-    setLoading(false);
+    };
+    const base = local.length > 0 ? local : [fallback];
+
+    // ── Poll ONDC results (up to 8s) ─────────────────────────
+    if (ondcTxId) {
+      for (let i = 0; i < 5; i++) {
+        await new Promise(r => setTimeout(r, 1600));
+        try {
+          const poll = await fetch(`${BACKEND}/api/results/${ondcTxId}`);
+          const data = await poll.json();
+          if (data.results?.length > 0) {
+            const ondcPlatforms = data.results.slice(0, 5).map((item: any) => ({
+              label: item.provider || 'ONDC',
+              cls: 'ondc', price: item.price,
+              size: item.unit || '1pc', perUnit: '-',
+              deepLink: '', playStore: '',
+            }));
+            const merged = [{ ...base[0], platforms: [...ondcPlatforms, ...base[0].platforms] }, ...base.slice(1)];
+            const allP = merged.flatMap(p => p.platforms.map(pl => pl.price));
+            const save = Math.max(...allP) - Math.min(...allP);
+            setSavings(save); addSavings(save);
+            setResults(merged); setOndcSource(true); setLoading(false);
+            return;
+          }
+        } catch { break; }
+      }
+    }
+
+    // ── Show local estimates ──────────────────────────────────
+    const allP = base.flatMap(p => p.platforms.map(pl => pl.price));
+    const save = Math.max(...allP) - Math.min(...allP);
+    setSavings(save); addSavings(save);
+    setResults(base); setLoading(false);
   };
+
 
   // Basket totals by platform
   const basketTotals = React.useMemo(() => {
@@ -173,6 +218,14 @@ export default function GroceryScreen() {
               <Text style={styles.resTitle}>Results for "{query}"</Text>
               <Text style={styles.resCnt}>{results.length} products</Text>
             </View>
+            {/* Price disclaimer */}
+            <View style={[styles.disclaimer, { borderColor: ondcSource ? Colors.green + '44' : Colors.border }]}>
+              <Text style={styles.disclaimerTxt}>
+                {ondcSource
+                  ? '🟢 Live prices from ONDC network · Verify before purchase'
+                  : '🕐 Price estimates · Updated periodically · Verify in app'}
+              </Text>
+            </View>
             <View style={styles.prodGrid}>
               {results.map((prod, pi) => {
                 const sorted = [...prod.platforms].sort((a, b) => a.price - b.price);
@@ -273,5 +326,7 @@ const styles = StyleSheet.create({
   platPer: { fontSize: 8, color: Colors.muted, fontFamily: Fonts.body },
   addBasketBtn: { margin: 6, padding: 6, backgroundColor: Colors.primaryDim, borderWidth: 1, borderColor: Colors.borderGold, borderRadius: 7, alignItems: 'center' },
   addBasketBtnText: { fontSize: 11, fontFamily: Fonts.semibold, color: Colors.primary },
+  disclaimer: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.card, borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7, marginBottom: 10 },
+  disclaimerTxt: { fontSize: 11, color: Colors.muted2, fontFamily: Fonts.body, flex: 1 },
 });
 
