@@ -11,6 +11,7 @@ import { calcRidePrices } from '../utils/ridesPricing';
 import { useDeepLink } from '../hooks/useDeepLink';
 import { SaveBar } from '../components/common/SaveBar';
 import { ScreenWrapper } from '../components/layout/ScreenWrapper';
+import { OfferSheet } from '../components/common/OfferSheet';
 
 const QUICK_DESTS = [
   { name: 'Airport', lat: 13.1986, lng: 77.7066 },
@@ -32,6 +33,11 @@ export default function RidesScreen() {
   const [distance, setDistance] = useState(0);
   const [savings, setSavings] = useState(0);
   const [sort, setSort] = useState<'price' | 'eta'>('price');
+  const [sheet, setSheet] = useState<{ platform: string; deepLink: string; playStore: string } | null>(null);
+
+  const openWithOffers = (platform: string, deepLink: string, playStore: string) => {
+    setSheet({ platform, deepLink, playStore });
+  };
 
   const compare = async () => {
     if (!pickup || !drop) { showToast('Select pickup and drop first'); return; }
@@ -143,7 +149,7 @@ export default function RidesScreen() {
                 <TouchableOpacity
                   key={i}
                   style={[styles.rideCard, best && styles.rideCardBest]}
-                  onPress={() => openApp(r.name, r.deepLink, r.playStore)}
+                  onPress={() => openWithOffers(r.name, r.deepLink, r.playStore)}
                   activeOpacity={0.8}
                 >
                   <View style={[styles.rideIco, { backgroundColor: r.bg }]}>
@@ -182,6 +188,15 @@ export default function RidesScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Offer Tips Sheet */}
+      <OfferSheet
+        visible={!!sheet}
+        platform={sheet?.platform || ''}
+        deepLink={sheet?.deepLink || ''}
+        playStore={sheet?.playStore || ''}
+        onClose={() => setSheet(null)}
+      />
     </ScreenWrapper>
   );
 }
