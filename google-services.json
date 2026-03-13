@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "325159966469",
+    "project_id": "nammadeal-870a6",
+    "storage_bucket": "nammadeal-870a6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:325159966469:android:8c7d16ddeed8b09d65c96c",
+        "android_client_info": {
+          "package_name": "com.nammadeal.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeXYsdKo1QeffWNhONEQc1EcL4F5B9DtI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

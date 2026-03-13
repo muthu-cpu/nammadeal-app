@@ -1,0 +1,96 @@
+{
+  "expo": {
+    "name": "NammaDeal",
+    "slug": "nammadeal",
+    "version": "1.0.0",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#08080A",
+    "scheme": "nammadeal",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#08080A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.nammadeal.app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "backgroundColor": "#F5A623",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "com.nammadeal.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.INTERNET",
+        "android.permission.CAMERA"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDeXYsdKo1QeffWNhONEQc1EcL4F5B9DtI"
+        }
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "nammadeal.app",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font",
+      "expo-updates",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow NammaDeal to use your location to set pickup and drop points for ride comparison."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#08080A",
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "46b13cd0-b1f6-4cac-bbc0-75d1778f5aa8"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/46b13cd0-b1f6-4cac-bbc0-75d1778f5aa8",
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "checkAutomatically": "ON_LOAD"
+    },
+    "owner": "muthuvels"
+  }
+}
