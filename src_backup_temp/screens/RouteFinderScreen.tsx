@@ -9,7 +9,8 @@ import { useAppStore } from '../store/useAppStore';
 import { ScreenWrapper } from '../components/layout/ScreenWrapper';
 
 // ── Google Maps Directions API ───────────────────────────────
-const GMAPS_KEY = 'AIzaSyDeXYsdKo1QeffWNhONEQc1EcL4F5B9DtI';
+// Key loaded from .env (EXPO_PUBLIC_GMAPS_KEY) — never hardcode credentials
+const GMAPS_KEY = process.env.EXPO_PUBLIC_GMAPS_KEY || '';
 
 // ── Popular Bengaluru locations ──────────────────────────────
 const POPULAR = [
