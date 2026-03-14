@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePreventScreenCapture } from 'expo-screen-capture';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { signOut } from 'firebase/auth';
 import { auth } from '../config/firebase';
@@ -16,6 +17,7 @@ interface UserProfile {
 
 export default function ProfileScreen() {
   const insets = useSafeAreaInsets();
+  usePreventScreenCapture(); // Block screenshots on profile (phone number visible)
   const { userId, userPhone, userName, totalSaved, recent, setUser, showToast } = useAppStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
