@@ -1,10 +1,9 @@
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { useAppStore } from '../store/useAppStore';
-import { WelcomeScreen } from '../screens/auth/WelcomeScreen';
-import { PhoneScreen } from '../screens/auth/PhoneScreen';
-import { SignupScreen } from '../screens/auth/SignupScreen';
-import { OtpScreen } from '../screens/auth/OtpScreen';
+import LoginScreen from '../screens/auth/LoginScreen';
+import RegisterScreen from '../screens/auth/RegisterScreen';
+import ForgotPinScreen from '../screens/auth/ForgotPinScreen';
 import { BottomTabNavigator } from './BottomTabNavigator';
 import { MapModal } from '../components/map/MapModal';
 import { SubscriptionScreen } from '../screens/SubscriptionScreen';
@@ -33,10 +32,9 @@ export function RootNavigator() {
         {!userId ? (
           // Not logged in → Auth screens
           <>
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="Phone"   component={PhoneScreen} />
-            <Stack.Screen name="Signup"  component={SignupScreen} />
-            <Stack.Screen name="Otp"     component={OtpScreen} />
+            <Stack.Screen name="Login"      component={LoginScreen} />
+            <Stack.Screen name="Register"   component={RegisterScreen} />
+            <Stack.Screen name="ForgotPin"  component={ForgotPinScreen} />
           </>
         ) : isAccessAllowed ? (
           // Logged in + active trial or subscription → Main app

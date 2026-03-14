@@ -35,7 +35,11 @@ export default function App() {
       if (user) {
         const raw = await AsyncStorage.getItem('@user_profile');
         const profile = raw ? JSON.parse(raw) : null;
-        const phone = profile?.phone || user.phoneNumber?.replace('+91', '') || null;
+        // email/password auth uses "{phone}@nammadeal.app" synthetic email
+        const phoneFromEmail = user.email?.endsWith('@nammadeal.app')
+          ? user.email.replace('@nammadeal.app', '')
+          : null;
+        const phone = profile?.phone || phoneFromEmail || user.phoneNumber?.replace('+91', '') || null;
         const name = profile?.name || null;
         setUser(user.uid, phone, name);
       } else {
