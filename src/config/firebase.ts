@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const firebaseConfig = {
   apiKey:            'AIzaSyA9OURChaHTSqGbbeufabWOpIyzi6xdrIo',
@@ -13,5 +14,14 @@ export const firebaseConfig = {
 
 export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-export const auth = getAuth(app);
+// initializeAuth can only be called once — fall back to getAuth on hot-reload
+let auth: ReturnType<typeof initializeAuth>;
+try {
+  auth = initializeAuth(app, { persistence: getReactNativePersistence(AsyncStorage) });
+} catch {
+  const { getAuth } = require('firebase/auth');
+  auth = getAuth(app);
+}
+export { auth };
+
 export const db   = null; // Firestore not used - data stored locally via AsyncStorage

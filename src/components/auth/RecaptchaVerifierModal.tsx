@@ -146,11 +146,12 @@ export const RecaptchaVerifierModal = forwardRef<RecaptchaVerifierModalRef, Prop
             {loading && <ActivityIndicator color="#F5A623" style={styles.spinner} />}
             <WebView
               style={[styles.webview, loading && styles.hidden]}
-              source={{ html: getHtml(firebaseConfig, attemptInvisibleVerification) }}
+              source={{ html: getHtml(firebaseConfig, attemptInvisibleVerification), baseUrl: `https://${firebaseConfig.authDomain}` }}
               onMessage={onMessage}
               onLoad={() => setLoading(false)}
               originWhitelist={['*']}
               javaScriptEnabled
+              mixedContentMode="always"
             />
             <TouchableOpacity onPress={() => { rejectRef.current?.(new Error('Cancelled')); setVisible(false); }}>
               <Text style={styles.cancel}>Cancel</Text>
