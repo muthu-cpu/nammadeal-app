@@ -24,7 +24,7 @@ export default function GroceryScreen() {
   const [savings, setSavings] = useState(0);
   const [ondcSource, setOndcSource] = useState(false);
 
-  const BACKEND = 'http://10.0.2.2:3000'; // Android emulator localhost; change to ngrok URL for real device
+  const BACKEND = 'https://acceptable-dedication-production-5bcd.up.railway.app';
 
   const search = async (q: string) => {
     const trimmed = q.trim().toLowerCase();
