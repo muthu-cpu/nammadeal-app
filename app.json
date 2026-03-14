@@ -65,7 +65,6 @@
     "plugins": [
       "expo-font",
       "expo-updates",
-      "expo-screen-capture",
       [
         "expo-location",
         {
