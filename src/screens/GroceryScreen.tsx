@@ -104,7 +104,7 @@ export default function GroceryScreen() {
     return Object.entries(pm).map(([n, v]) => ({ n, ...v })).sort((a, b) => a.t - b.t);
   }, [basket]);
 
-  const getEmoji = (key: string) => GROCERY_EMOJIS[key] || 'ðŸ›’';
+  const getEmoji = (key: string) => GROCERY_EMOJIS[key] || GROCERY_EMOJIS[‘default’] || ‘\uD83D\uDED2’;
 
   return (
     <ScreenWrapper>
@@ -232,7 +232,7 @@ export default function GroceryScreen() {
                 return (
                   <View key={pi} style={styles.prodCard}>
                     <View style={styles.prodImg}>
-                      <Text style={{ fontSize: 46 }}>{getEmoji(Object.keys(GDB).find(k => prod.name.toLowerCase().includes(k)) || 'default')}</Text>
+                      <Text style={{ fontSize: 46 }}>{getEmoji(prod.emoji || Object.keys(GDB).find(k => prod.name.toLowerCase().includes(k)) || 'default')}</Text>
                     </View>
                     <Text style={styles.prodName}>{prod.name}</Text>
                     <View style={styles.platList}>
