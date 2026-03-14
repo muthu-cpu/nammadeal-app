@@ -5,11 +5,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithPhoneNumber } from 'firebase/auth';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import { RecaptchaVerifierModal } from '../../components/auth/RecaptchaVerifierModal';
 import { auth, firebaseConfig } from '../../config/firebase';
 
 export function PhoneScreen({ navigation }: any) {
-  const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
+  const recaptchaVerifier = useRef<any>(null);
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -28,7 +28,7 @@ export function PhoneScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <FirebaseRecaptchaVerifierModal
+      <RecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={firebaseConfig}
         attemptInvisibleVerification

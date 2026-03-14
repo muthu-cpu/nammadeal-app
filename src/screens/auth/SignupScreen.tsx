@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { signInWithPhoneNumber } from 'firebase/auth';
-import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
+import { RecaptchaVerifierModal } from '../../components/auth/RecaptchaVerifierModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { auth, firebaseConfig } from '../../config/firebase';
 
@@ -13,7 +13,7 @@ const GENDERS = ['Male', 'Female', 'Other'] as const;
 type Gender = typeof GENDERS[number];
 
 export function SignupScreen({ navigation }: any) {
-  const recaptchaVerifier = useRef<FirebaseRecaptchaVerifierModal>(null);
+  const recaptchaVerifier = useRef<any>(null);
   const [name, setName] = useState('');
   const [gender, setGender] = useState<Gender | null>(null);
   const [age, setAge] = useState('');
@@ -64,7 +64,7 @@ export function SignupScreen({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <FirebaseRecaptchaVerifierModal ref={recaptchaVerifier} firebaseConfig={firebaseConfig} attemptInvisibleVerification />
+      <RecaptchaVerifierModal ref={recaptchaVerifier} firebaseConfig={firebaseConfig} attemptInvisibleVerification />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <Text style={styles.logo}>NammaDeal</Text>
