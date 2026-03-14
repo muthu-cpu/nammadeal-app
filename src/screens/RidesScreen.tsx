@@ -13,6 +13,27 @@ import { SaveBar } from '../components/common/SaveBar';
 import { ScreenWrapper } from '../components/layout/ScreenWrapper';
 import { OfferSheet } from '../components/common/OfferSheet';
 
+const MAPS_API_KEY = 'AIzaSyDeXYsdKo1QeffWNhONEQc1EcL4F5B9DtI';
+
+async function fetchRoute(pickup: { lat: number; lng: number }, drop: { lat: number; lng: number }) {
+  try {
+    const url =
+      `https://maps.googleapis.com/maps/api/directions/json` +
+      `?origin=${pickup.lat},${pickup.lng}&destination=${drop.lat},${drop.lng}&key=${MAPS_API_KEY}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.status === 'OK' && data.routes.length > 0) {
+      const leg = data.routes[0].legs[0];
+      return {
+        distanceText: leg.distance.text,
+        distanceKm: leg.distance.value / 1000,
+        durationText: leg.duration.text,
+      };
+    }
+  } catch {}
+  return null;
+}
+
 const QUICK_DESTS = [
   { name: 'Airport', lat: 13.1986, lng: 77.7066 },
   { name: 'MG Road', lat: 12.9756, lng: 77.6099 },
@@ -34,6 +55,7 @@ export default function RidesScreen() {
   const [savings, setSavings] = useState(0);
   const [sort, setSort] = useState<'price' | 'eta'>('price');
   const [sheet, setSheet] = useState<{ platform: string; deepLink: string; playStore: string } | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{ distanceText: string; durationText: string } | null>(null);
 
   const openWithOffers = (platform: string, deepLink: string, playStore: string) => {
     setSheet({ platform, deepLink, playStore });
@@ -43,8 +65,13 @@ export default function RidesScreen() {
     if (!pickup || !drop) { showToast('Select pickup and drop first'); return; }
     setLoading(true);
     setRides([]);
-    await new Promise(r => setTimeout(r, 1500));
-    const dist = haversine(pickup.lat, pickup.lng, drop.lat, drop.lng);
+    setRouteInfo(null);
+
+    // Fetch real route from Google Directions API
+    const route = await fetchRoute(pickup, drop);
+    const dist = route ? route.distanceKm : haversine(pickup.lat, pickup.lng, drop.lat, drop.lng);
+    if (route) setRouteInfo({ distanceText: route.distanceText, durationText: route.durationText });
+
     const rideOptions = calcRidePrices(dist);
     const save = Math.max(...rideOptions.map(r => r.price)) - Math.min(...rideOptions.map(r => r.price));
     setDistance(dist);
@@ -126,6 +153,30 @@ export default function RidesScreen() {
         {!loading && sorted.length > 0 && (
           <>
             <SaveBar savings={savings} label="Best price saves you" />
+
+            {/* Route Info Card */}
+            {routeInfo && (
+              <View style={styles.routeCard}>
+                <View style={styles.routeItem}>
+                  <Text style={styles.routeIcon}>📍</Text>
+                  <Text style={styles.routeLabel}>Distance</Text>
+                  <Text style={styles.routeVal}>{routeInfo.distanceText}</Text>
+                </View>
+                <View style={styles.routeDivider} />
+                <View style={styles.routeItem}>
+                  <Text style={styles.routeIcon}>⏱️</Text>
+                  <Text style={styles.routeLabel}>Est. Time</Text>
+                  <Text style={styles.routeVal}>{routeInfo.durationText}</Text>
+                </View>
+                <View style={styles.routeDivider} />
+                <View style={styles.routeItem}>
+                  <Text style={styles.routeIcon}>🗺️</Text>
+                  <Text style={styles.routeLabel}>Via</Text>
+                  <Text style={styles.routeVal}>Google Maps</Text>
+                </View>
+              </View>
+            )}
+
             <View style={styles.resHeader}>
               <Text style={styles.resTitle} numberOfLines={1}>
                 {pickup?.name?.split(',')[0]} to {drop?.name?.split(',')[0]}
@@ -202,6 +253,12 @@ export default function RidesScreen() {
 }
 
 const styles = StyleSheet.create({
+  routeCard: { backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.borderGold, borderRadius: 13, padding: 14, flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  routeItem: { flex: 1, alignItems: 'center', gap: 3 },
+  routeIcon: { fontSize: 16 },
+  routeLabel: { fontSize: 10, color: Colors.muted, fontFamily: Fonts.body, textTransform: 'uppercase', letterSpacing: 0.5 },
+  routeVal: { fontSize: 13, color: Colors.text, fontFamily: Fonts.bold },
+  routeDivider: { width: 1, height: 36, backgroundColor: Colors.border },
   sectionLbl: { fontSize: 10, color: Colors.muted, textTransform: 'uppercase', letterSpacing: 1.2, marginBottom: 6, fontFamily: Fonts.semibold, marginTop: 4 },
   locCard: { backgroundColor: Colors.card, borderWidth: 1, borderColor: Colors.border, borderRadius: 14, overflow: 'hidden', marginBottom: 12 },
   locRow: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, paddingHorizontal: 14, borderBottomWidth: 1, borderBottomColor: Colors.border },
