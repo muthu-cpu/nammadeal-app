@@ -104,7 +104,7 @@ export default function GroceryScreen() {
     return Object.entries(pm).map(([n, v]) => ({ n, ...v })).sort((a, b) => a.t - b.t);
   }, [basket]);
 
-  const getEmoji = (key: string) => GROCERY_EMOJIS[key] || GROCERY_EMOJIS[‘default’] || ‘\uD83D\uDED2’;
+  const getEmoji = (key: string) => GROCERY_EMOJIS[key] || GROCERY_EMOJIS['default'] || '\uD83D\uDED2';
 
   return (
     <ScreenWrapper>
